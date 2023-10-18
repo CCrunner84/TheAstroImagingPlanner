@@ -549,20 +549,23 @@ def show_voyager_inputs_callback(switch):
         State(VoyagerConfig.PORT, "value"),
         State(VoyagerConfig.USER, "value"),
         State(VoyagerConfig.PASSWORD, "value"),
+        State(VoyagerConfig.SECRET, "value"),
         State("target-matches", "value"),
     ],
     prevent_initial_call=True,
 )
 def sync_ratings_callback(
-    n1, filenames, server_url, server_port, auth_user, auth_passwd, target_names
+    n1, filenames, server_url, server_port, auth_user, auth_passwd, shared_secret, target_names
 ):
     df = get_df_for_status(filenames=filenames)
     auth_token = f"{auth_user}:{auth_passwd}"
+
     asyncio.run(
         main(
             server_url=server_url,
             server_port=server_port,
             auth_token=auth_token,
+            auth_secret=shared_secret,
             target_names=target_names,
         )
     )
@@ -3053,6 +3056,7 @@ def set_aip_profile_and_options(n, aip_profile):
         State(VoyagerConfig.PORT, "value"),
         State(VoyagerConfig.USER, "value"),
         State(VoyagerConfig.PASSWORD, "value"),
+        State(VoyagerConfig.SECRET, "value"),
         State("themes", "value"),
         State(InspectorThresholds.ECC_THR, "value"),
         State(InspectorThresholds.STAR_FRAC_THR, "value"),
@@ -3095,6 +3099,7 @@ def update_config_callback(
     voyager_port,
     voyager_user,
     voyager_password,
+    voyager_secret,
     theme,
     ecc_thr,
     star_frac_thr,
@@ -3133,6 +3138,7 @@ def update_config_callback(
         config_data["voyager_config"][VoyagerConfig.PORT] = voyager_port
         config_data["voyager_config"][VoyagerConfig.USER] = voyager_user
         config_data["voyager_config"][VoyagerConfig.PASSWORD] = voyager_password
+        config_data["voyager_config"][VoyagerConfig.SECRET] = voyager_secret
         config_data["voyager_config"][VoyagerConfig.SWITCH] = voyager_switch
 
         config_data["planner_config"] = {}

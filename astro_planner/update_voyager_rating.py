@@ -38,6 +38,7 @@ class VoyagerConnectionManager(Thread):
         config=None,
         server_url="0.0.0.0",
         server_port=5950,
+        shared_secret="",
         thread_id: str = "WSThread",
     ):
         Thread.__init__(self)
@@ -46,6 +47,7 @@ class VoyagerConnectionManager(Thread):
 
         self.server_url = server_url
         self.server_port = server_port
+        self.shared_secret = shared_secret
 
         self.config = config
         # self.voyager_settings = self.config.voyager_setting
@@ -68,12 +70,13 @@ class VoyagerConnectionManager(Thread):
         self.loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self.loop)
 
-    async def send_command(self, command_name, params, with_mac=False, extra=""):
+    async def send_command(self, command_name, params, with_mac=False, shared_secret="", extra=""):
         # log.info(f"sending command..{command_name}")
         uid = str(uuid.uuid1())
         params["UID"] = uid
+
         if with_mac:
-            mac_raw = f"secret99{uid}{extra}"
+            mac_raw = f"{shared_secret}{uid}{extra}"
             # log.info(f"mac-raw: {mac_raw}")
             mac = hashlib.md5(mac_raw.encode("utf-8")).hexdigest()
             params["MAC"] = mac
@@ -216,6 +219,7 @@ def get_attr_from_list(list_arg, search_key, search_value, attr_name):
 
 async def main(
     auth_token,
+    auth_secret="",
     target_names=None,
     df_ratings=None,
     server_url="localhost",
@@ -244,7 +248,7 @@ async def main(
     # Get targets
     params = {}
     result = await connection_manager.send_command(
-        "RemoteOpenRoboTargetGetTargetList", params, with_mac=True
+        "RemoteOpenRoboTargetGetTargetList", params, with_mac=True, shared_secret=auth_secret
     )
     target_list = connection_manager.msg_list
 
@@ -275,6 +279,7 @@ async def main(
             "RemoteOpenRoboTargetGetShotDoneList",
             params,
             with_mac=True,
+            shared_secret=auth_secret,
             extra=params["RefGuidTarget"],
         )
 
@@ -318,6 +323,7 @@ async def main(
             "RemoteOpenRoboTargetRestoreShotDone",
             params,
             with_mac=True,
+            shared_secret=auth_secret,
             extra=params["ObjUID"],
         )
 
@@ -330,6 +336,7 @@ async def main(
             "RemoteOpenRoboTargetUpdateBulkShotDone",
             params,
             with_mac=True,
+            shared_secret=auth_secret
         )
 
     connection_manager.ws.close()

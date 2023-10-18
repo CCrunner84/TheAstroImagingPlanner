@@ -61,6 +61,7 @@ class PlannerConfig(ConfigDataBase):
 class VoyagerConfig(ConfigDataBase):
     HOSTNAME = "hostname"
     PASSWORD = "password"
+    SECRET = "secret"
     USER = "user"
     PORT = "port"
     SWITCH = "voyager_switch"
@@ -68,6 +69,7 @@ class VoyagerConfig(ConfigDataBase):
     def __init__(self):
         self.hostname = ""
         self.password = ""
+        self.secret = ""
         self.user = ""
         self.port = ""
         self.voyager_switch = False

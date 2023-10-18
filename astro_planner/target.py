@@ -115,11 +115,13 @@ async def get_roboclip_targets(connection_manager):
     return roboclip_list
 
 
-async def get_robotargets_roboclip(server_url, server_port, auth_token):
+async def get_robotargets_roboclip(server_url, server_port, auth_token, auth_secret):
+
     websocket.enableTrace(True)
     connection_manager = VoyagerConnectionManager(
-        server_url=server_url, server_port=server_port
+        server_url=server_url, server_port=server_port, shared_secret=auth_secret
     )
+
     connection_manager.run_forever()
     connection_manager.receive_message_callback = receive_message_callback
 
@@ -239,7 +241,7 @@ class RoboClipTargets(Targets):
             df_targets = pd.DataFrame.from_records(rows)
             df_targets.columns = columns
         else:
-            cmd = [f"{mdb_export_path}/mdb-export", filename, "RoboClip"]
+            cmd = [f"mdb-export", filename, "RoboClip"]
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
             df_targets = pd.read_csv(proc.stdout)
         self.df_targets = df_targets
@@ -341,15 +343,17 @@ def target_file_reader(filename, **kwargs):
 
 
 class RoboTargets(Targets):
-    def __init__(self, server_url, server_port, auth_token):
+
+    def __init__(self, server_url, server_port, auth_token, shared_secret):
         super().__init__()
         self.server_url = server_url
         self.server_port = server_port
         self.auth_token = auth_token
+        self.auth_secret = shared_secret
 
     async def foo(self):
         df_targets = await get_robotargets_roboclip(
-            self.server_url, self.server_port, self.auth_token
+            self.server_url, self.server_port, self.auth_token, self.auth_secret
         )
         df_targets = df_targets.rename(
             {
@@ -369,8 +373,8 @@ class RoboTargets(Targets):
         self.load_from_df(self.df_targets)
 
 
-async def robotarget_reader(server_url, server_port, auth_token):
-    rt = RoboTargets(server_url, server_port, auth_token)
+async def robotarget_reader(server_url, server_port, auth_token, auth_secret):
+    rt = RoboTargets(server_url, server_port, auth_token, auth_secret)
     await rt.foo()
     df = rt.df_targets.drop("status", axis=1)
     return df

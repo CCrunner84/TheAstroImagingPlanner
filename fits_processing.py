@@ -211,9 +211,8 @@ class RunFileProcessor:
             log.info("** Got config")
             self.robotarget_kwargs["server_url"] = voyager_config.get("hostname")
             self.robotarget_kwargs["server_port"] = voyager_config.get("port")
-            self.robotarget_kwargs[
-                "auth_token"
-            ] = f"{voyager_config.get('user')}:{voyager_config.get('password')}"
+            self.robotarget_kwargs["auth_token"] = f"{voyager_config.get('user')}:{voyager_config.get('password')}"
+            self.robotarget_kwargs["shared_secret"] = voyager_config.get("secret")
             self.use_robotarget = voyager_config.get("voyager_switch", False)
             log.info(self.use_robotarget)
             log.info(self.robotarget_kwargs)

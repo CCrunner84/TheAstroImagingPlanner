@@ -1419,6 +1419,24 @@ def serve_layout(app, monitor_mode_on=True, update_data_fn=None):
                                 ),
                             ]
                         ),
+                        dbc.Row(
+                            [
+                                dbc.InputGroup(
+                                    [
+                                        dbc.InputGroupText(
+                                            "Voyager Shared Secret",
+                                            id="voyager-secret-label",
+                                        ),
+                                        dbc.Input(
+                                            id=VoyagerConfig.SECRET,
+                                            type="password",
+                                            value=voyager_config.secret,
+                                            debounce=True,
+                                        ),
+                                    ]
+                                ),
+                            ]
+                        ),
                     ],
                     id="voyager-inputs",
                 ),
