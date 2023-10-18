@@ -27,7 +27,11 @@ def approx_ra_hr_noon(date):
 
 
 def compute_ra_order(ra, date_string):
-    result = (ra - approx_ra_hr_noon(date_string)) % 24
+
+    #NICK - TODO
+    ra_int = int(float(ra))
+
+    result = (ra_int - approx_ra_hr_noon(date_string)) % 24
     return result
 
 
@@ -79,25 +83,34 @@ def match_targets_to_data(df_targets, df_data):
             "NAXIS1",
             "NAXIS2",
         ]
-    ].set_index(["filename"])
+    ]
+
+    # Set "filename" column as the index
+    dfsh.set_index("filename")
 
     records = []
     for row in df_targets.itertuples():
+
+        # TODO - NICK
         object_distance = (
             distance(row.RAJ2000, row.DECJ2000, dfsh["OBJCTRA"], dfsh["OBJCTDEC"]) * 60
         )
-
+        
         fov_x = dfsh["arcsec_per_pixel"] * dfsh["NAXIS1"] / 60
         fov_y = dfsh["arcsec_per_pixel"] * dfsh["NAXIS2"] / 60
         target = row.TARGET
         matching_files = object_distance[object_distance < fov_y / 1].index
+
         for file in matching_files:
+            
             object_name = dfsh.loc[file, "OBJECT"]
+            file_name = dfsh.loc[file, "filename"]
+
             records.append(
                 dict(
                     TARGET=target,
                     OBJECT=object_name,
-                    filename=file,
+                    filename=file_name,
                     distance=object_distance.loc[file],
                     fov_x=fov_x.loc[file],
                     fov_y=fov_y.loc[file],

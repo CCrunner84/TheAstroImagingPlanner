@@ -4,6 +4,10 @@ DEG_TO_RADIAN = np.pi / 180.0
 
 
 def distance(ra_1, dec_1, ra_2, dec_2):
+
+    ra_2 = ra_2.astype(float)
+    dec_2 = dec_2.astype(float)
+
     # haversine formula
     d_ra_degrees = np.mod((ra_1 - ra_2) * 15, 360)
     d_dec = dec_1 - dec_2
